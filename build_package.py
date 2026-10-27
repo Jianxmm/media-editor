@@ -10,9 +10,9 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parent
 WRAPPER=('assets/download-button.svg','assets/readme-cover.svg','.gitignore','.github/workflows/ci.yml','SKILL.md','README.md','START_HERE.md','examples/整理前后.md','VALIDATION.md','THIRD_PARTY.md','LICENSE','VERSION','agents/openai.yaml',
-         'references/general.md','references/acquisition.md','references/review-list.md','references/personalization.md','references/maintenance.md',
-         'scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py',
-         'build_package.py','install.py','tests/test_install_package.py','tests/test_media_intake.py','tests/test_user_workflow.py')
+         'references/multi.md','references/general.md','references/acquisition.md','references/review-list.md','references/personalization.md','references/maintenance.md',
+         'scripts/multi_livestream.py','scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py',
+         'build_package.py','install.py','tests/test_multi_livestream.py','tests/test_install_package.py','tests/test_media_intake.py','tests/test_user_workflow.py')
 
 def build(output: Path) -> dict:
     output=output.expanduser().resolve()
