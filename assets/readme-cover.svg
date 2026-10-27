@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+<title id="title">文稿整理</title><desc id="desc">把视频、播客、直播和文字，整理成一份阅读稿和一份待核清单。</desc>
+<rect width="1200" height="360" rx="24" fill="#f4f6f2"/>
+<circle cx="1120" cy="15" r="210" fill="#e1ebe5"/>
+<circle cx="40" cy="370" r="140" fill="#e9e1d4"/>
+<g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">
+<text x="64" y="71" font-size="16" font-weight="600" letter-spacing="3" fill="#53685e">MEDIA EDITOR · AGENT SKILL</text>
+<text x="60" y="151" font-size="64" font-weight="700" fill="#173b30">文稿整理</text>
+<text x="64" y="211" font-size="30" fill="#304a40">把内容留下，把疑点标清。</text>
+<text x="64" y="290" font-size="23" fill="#53685e">视频 / 播客 / 直播 / 已有文字</text>
+<path d="M650 180h50m-12-12 12 12-12 12" fill="none" stroke="#82978c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="746" y="58" width="178" height="244" rx="12" fill="#fff" stroke="#cedbd2" stroke-width="2"/>
+<rect x="768" y="80" width="62" height="7" rx="3.5" fill="#b4cdbd"/>
+<text x="767" y="134" font-size="28" font-weight="600" fill="#173b30">整理稿</text>
+<g stroke="#d3ded6" stroke-width="7" stroke-linecap="round"><path d="M770 167h129M770 191h129M770 215h129M770 239h82"/></g>
+<text x="768" y="280" font-size="15" fill="#6b8175">保留原意与细节</text>
+<rect x="946" y="88" width="196" height="244" rx="12" fill="#fffaf3" stroke="#e4d7c1" stroke-width="2"/>
+<rect x="968" y="110" width="62" height="7" rx="3.5" fill="#d5b683"/>
+<text x="968" y="164" font-size="28" font-weight="600" fill="#71532f">待核清单</text>
+<g stroke="#dfd2bf" stroke-width="7" stroke-linecap="round"><path d="M990 199h127M990 230h127M990 261h82"/></g>
+<g fill="none" stroke="#b79b71" stroke-width="2"><rect x="967" y="192" width="12" height="12" rx="2"/><rect x="967" y="223" width="12" height="12" rx="2"/><rect x="967" y="254" width="12" height="12" rx="2"/></g>
+<text x="968" y="310" font-size="15" fill="#917b5f">原句 · 疑点 · 核对位置</text>
+</g></svg>
