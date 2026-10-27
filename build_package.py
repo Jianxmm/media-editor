@@ -9,7 +9,7 @@ from pathlib import Path
 import zipfile
 
 ROOT=Path(__file__).resolve().parent
-WRAPPER=('assets/readme-cover.svg','.gitignore','.github/workflows/ci.yml','SKILL.md','README.md','START_HERE.md','examples/整理前后.md','VALIDATION.md','THIRD_PARTY.md','LICENSE','VERSION','agents/openai.yaml',
+WRAPPER=('assets/download-button.svg','assets/readme-cover.svg','.gitignore','.github/workflows/ci.yml','SKILL.md','README.md','START_HERE.md','examples/整理前后.md','VALIDATION.md','THIRD_PARTY.md','LICENSE','VERSION','agents/openai.yaml',
          'references/general.md','references/acquisition.md','references/review-list.md','references/personalization.md','references/maintenance.md',
          'scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py',
          'build_package.py','install.py','tests/test_install_package.py','tests/test_media_intake.py','tests/test_user_workflow.py')
