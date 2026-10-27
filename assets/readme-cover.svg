@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" role="img" aria-labelledby="title desc">
-<title id="title">文稿整理</title><desc id="desc">从两三个小时的直播开始，把讲述留下，把疑点标清。也适用于视频、播客和转写初稿。</desc>
+<title id="title">文稿整理</title><desc id="desc">面向直播、访谈、多人分享和播客，把讲述留下，把疑点标清。</desc>
 <rect width="1200" height="300" rx="24" fill="#f4f6f2"/>
 <circle cx="1120" cy="5" r="210" fill="#e1ebe5"/><circle cx="40" cy="335" r="125" fill="#e9e1d4"/>
 <g font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">
-<text x="60" y="53" font-size="22" fill="#53685e">从两三个小时的直播开始</text>
+<text x="60" y="53" font-size="22" fill="#53685e">直播分享 · 访谈对谈 · 多人交流</text>
 <text x="56" y="132" font-size="68" font-weight="700" fill="#173b30">文稿整理</text>
 <text x="60" y="190" font-size="29" fill="#304a40">把讲述留下，把疑点标清。</text>
 <text x="60" y="252" font-size="22" fill="#53685e">直播 / 视频 / 播客 / 转写初稿</text>

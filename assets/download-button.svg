@@ -1,6 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="208" height="52" viewBox="0 0 208 52" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" width="224" height="52" viewBox="0 0 224 52" role="img" aria-labelledby="title">
 <title id="title">下载最新版 ZIP 安装包</title>
-<rect width="208" height="52" rx="10" fill="#21634e"/>
-<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M28 14v16m-6-6 6 6 6-6M19 33v5h18v-5"/></g>
-<text x="52" y="33" fill="#fff" font-size="20" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">下载最新版</text>
+<rect x="1" y="1" width="222" height="50" rx="25" fill="#f9fbf9" stroke="#cbd9d1" stroke-width="1.5"/>
+<circle cx="27" cy="26" r="15" fill="#e8f0eb"/>
+<g fill="none" stroke="#38624f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M27 17v14m-5-5 5 5 5-5M20 33v3h14v-3"/></g>
+<text x="51" y="32.5" fill="#254e3d" font-size="18" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif">下载最新版</text>
+<path d="M166 17v18" stroke="#dbe5de"/>
+<text x="180" y="30.5" fill="#6d8275" font-size="12" font-weight="500" letter-spacing="1" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">ZIP</text>
 </svg>
