@@ -1,4 +1,5 @@
 import importlib.util
+import re
 import tempfile
 import unittest
 import zipfile
@@ -42,6 +43,18 @@ class PackageTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.installer.install(self.source, target)
         self.assertFalse(target.exists())
+
+    def test_installed_entry_and_references_are_self_contained(self):
+        target = self.root / 'skills/media-editor'
+        self.installer.install(self.source, target)
+        for document in [target / 'SKILL.md', *sorted((target / 'references').glob('*.md'))]:
+            for link in re.findall(r'\[[^\]\n]*\]\(([^\s)]+)\)', document.read_text()):
+                if link.startswith(('https://', 'http://', '#')):
+                    continue
+                self.assertTrue((document.parent / link.split('#')[0]).is_file(),
+                                f'{document.relative_to(target)} -> {link}')
+        self.assertEqual((target / 'tests/test_review_records.py').read_bytes(),
+                         (ROOT / 'tests/test_review_records.py').read_bytes())
 
     def test_repeat_upgrade_backup_and_restore_preserve_user_changes(self):
         target=self.root/'skills/media-editor'

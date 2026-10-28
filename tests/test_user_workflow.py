@@ -48,6 +48,20 @@ class UserWorkflowTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):render_review(source,out)
             self.assertEqual(out.read_text(),'human review notes')
 
+    def test_review_table_preserves_multiline_and_pipe_without_extra_columns(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);source=root/'issues.json';out=root/'review.md'
+            source.write_text(json.dumps({'issues':[{
+                'priority':'P1','location':'00:30','original':'甲 | 乙\n另一句',
+                'question':'核对金额','draft':'保留范围\n不填数字'}]},ensure_ascii=False))
+            render_review(source,out)
+            rows=[line for line in out.read_text().splitlines() if line.startswith('| P1 |')]
+            self.assertEqual(len(rows),1)
+            import re
+            self.assertEqual(len(re.split(r'(?<!\\)\|',rows[0])),8)
+            self.assertIn('甲 \\| 乙<br>另一句',rows[0])
+            self.assertIn('保留范围<br>不填数字',rows[0])
+
     def test_shared_profile_only_confirms_supported_terms_and_freezes_per_task(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);profile=root/'profile';case=root/'task';core=profile_core()

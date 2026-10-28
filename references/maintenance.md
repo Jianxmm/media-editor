@@ -34,7 +34,7 @@ python <SKILL_ROOT>/scripts/workspace_tools.py profile snapshot <资料目录> -
 
 ## 待核清单与耗时
 
-清单使用[呈现规则](review-list.md)，只分组和改进可读性，不降低 P0/P1 或自动关闭问题；用户不用维护中间 JSON。
+清单使用[呈现规则](review-list.md)，按独立问题生成表格，保留原句、正文实际写法及已提供的核对记录；整场能力缺口集中说明。程序不执行听音、事实查证或发布终审，不降低P0/P1，也不把记录存在当作结论真实；用户不用维护中间JSON。
 
 ```text
 python <SKILL_ROOT>/scripts/workspace_tools.py time start --workspace <任务目录> --stage 文字整理
