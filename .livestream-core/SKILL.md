@@ -78,7 +78,7 @@ AI 稿稳定、人工修改之前，运行 `review freeze "<场次>"`。真人�
 
 三场双轨、盲评、评分上限及“优于人工/替代团队”结论仅在实际开展对应评估时读取 [references/quality-evaluation.md](references/quality-evaluation.md)，不作为每场普通整理的额外启动步骤。
 
-首次试用观察和长稿人工检查使用 [TRYOUT.md](TRYOUT.md)。只记录实际发生的体验与耗时，不能由 AI 代填真人结论。
+首次使用观察和长稿人工检查使用 [TRYOUT.md](TRYOUT.md)。只记录实际发生的体验与耗时，不能由 AI 代填真人结论。
 
 ## 故障恢复
 
