@@ -1,4 +1,3 @@
-> v1.0.0 正式版：完整整理共用一套质量标准，按内容与证据选择方法。[验证范围](VALIDATION.md) · [多人说明](references/multi.md)
 
 <p align="center">
   <img src="assets/readme-cover.svg" alt="文稿整理：直播、视频、播客和转写初稿，整理成文稿与待核清单" width="100%">
