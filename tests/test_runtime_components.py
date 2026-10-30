@@ -39,6 +39,7 @@ class ComponentTests(unittest.TestCase):
         first,cat,path=self.bundle(self.area/'one');cache=self.area/'cache'
         with patch.object(manager.subprocess,'run'):
             a=manager.setup(self.skill,path,cache,first.as_uri())
+        self.assertFalse(list(cache.rglob('*.zip')))
         model=runtime.bundled_model(self.skill);inode=model.stat().st_ino
         second,cat2,path2=self.bundle(self.area/'two',b'updated engine')
         self.assertEqual(cat['models']['sha256'],cat2['models']['sha256'])

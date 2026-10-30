@@ -60,6 +60,7 @@ def component(item, kind, cache, base_url, source=None):
     parent=cache/kind/item['sha256'];root=parent/'media-editor'
     if root.exists():verify(root);return root
     parent.parent.mkdir(parents=True,exist_ok=True)
+    archive=None
     with tempfile.TemporaryDirectory(prefix='.component-',dir=parent.parent) as tmp:
         stage=Path(tmp)
         if source:shutil.copytree(source,stage/'media-editor')
@@ -73,6 +74,9 @@ def component(item, kind, cache, base_url, source=None):
                 z.extractall(stage)
         verify(stage/'media-editor')
         stage.rename(parent)
+    # The installed, verified files are the reusable cache. Avoid retaining a
+    # second full copy of the model as a completed download archive.
+    if archive is not None:archive.unlink()
     return root
 
 
