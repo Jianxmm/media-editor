@@ -95,6 +95,8 @@ def setup(skill, catalog_path, cache, base_url, runtime_source=None):
         previous=pointer.read_text() if pointer.exists() else None
         with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=skill,delete=False) as f:f.write(str(runtime));temp=Path(f.name)
         temp.replace(pointer)
+        saved=cache/'catalogs'/data['version']/(data['target']+'.json');saved.parent.mkdir(parents=True,exist_ok=True)
+        saved.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     return {'status':'ready','runtime':str(runtime),'models':str(models),'previous_runtime':previous,'media_uploaded':False}
 
 

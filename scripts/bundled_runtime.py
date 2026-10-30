@@ -12,7 +12,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def runtime_root(root: Path | None = None) -> Path:
     root=(root or ROOT).resolve()
-    if (root/'runtime/runtime.json').is_file():return root
     pointer=root/'.runtime-path'
     if pointer.exists():
         if pointer.is_symlink():raise ValueError('运行环境指针不能是链接')

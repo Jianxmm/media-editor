@@ -104,7 +104,13 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
                 shutil.copyfile(source/'.runtime-path',stage/'.runtime-path')
             # A rules-only update must not remove a working transcription runtime.
             if target.exists() and not (stage/'runtime').exists() and not (stage/'.runtime-path').exists():
-                if (target/'runtime').is_dir():
+                if (target/'.runtime-path').is_file():
+                    pointer=target/'.runtime-path'
+                    if pointer.is_symlink():raise ValueError('运行环境指针不能是链接')
+                    from bundled_runtime import runtime_info
+                    runtime_info(target)
+                    shutil.copyfile(pointer,stage/'.runtime-path')
+                elif (target/'runtime').is_dir():
                     meta=json.loads((stage/'PACKAGE-MANIFEST.json').read_text(encoding='utf-8'))
                     old=json.loads((target/'PACKAGE-MANIFEST.json').read_text(encoding='utf-8'))
                     for name,sha in old['files'].items():
@@ -117,10 +123,6 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
                         if name.startswith('runtime/'):meta['files'][name]=sha
                     meta['executable_files']=sorted(set(meta.get('executable_files',[]))|{n for n in old.get('executable_files',[]) if n.startswith('runtime/')})
                     (stage/'PACKAGE-MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-                elif (target/'.runtime-path').is_file():
-                    pointer=target/'.runtime-path'
-                    if pointer.is_symlink():raise ValueError('运行环境指针不能是链接')
-                    shutil.copyfile(pointer,stage/'.runtime-path')
             if backup:shutil.move(str(target),str(backup))
             try: stage.rename(target)
             except Exception:

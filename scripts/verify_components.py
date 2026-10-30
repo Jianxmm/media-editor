@@ -41,13 +41,22 @@ def verify(base, parts, report):
             assert json.loads(launch(target,'doctor','--task','local-asr').stdout)['ready']
             runtime=Path((target/'.runtime-path').read_text());model=Path((runtime/'.models-path').read_text())
             requests=counts.get('/media-editor-models.zip',0)
-            launch(source,'install','--target',target,'--upgrade')
+            (target/'SKILL.md').write_text((target/'SKILL.md').read_text(encoding='utf-8')+'\nmanual marker\n',encoding='utf-8')
+            upgraded=json.JSONDecoder().raw_decode(launch(source,'install','--target',target,'--upgrade').stdout)[0]
+            assert upgraded['status']=='upgraded'
+            assert 'manual marker' in (Path(upgraded['backup'])/'SKILL.md').read_text(encoding='utf-8')
             assert (target/'.runtime-path').read_text()==str(runtime)
             assert counts.get('/media-editor-models.zip',0)==requests==1
+            with zipfile.ZipFile(base) as z:z.extractall(area/'other-agent')
+            other=area/'other-agent/media-editor'
+            assert json.loads(launch(other,'doctor','--task','local-asr').stdout)['ready']
+            assert counts.get('/media-editor-models.zip',0)==1
+            assert sum(v for k,v in counts.items() if k.startswith('/media-editor-runtime-'))==1
             inference=json.loads(launch(target,'transcribe',runtime/'runtime/samples/jfk.wav','--language','en','--threads','2','--output-dir',area/'transcript').stdout)
             text=(area/'transcript/transcript.txt').read_text().lower();assert 'country' in text and 'ask' in text
             result={'status':'PASS','target':target_platform(),'first_use_without_global_python':True,'shared_models_downloads':requests,
                     'runtime_outside_skill':not runtime.is_relative_to(target),'upgrade_retains_runtime':True,'transcription_timing':inference['timing'],
+                    'second_agent_reuses_programs_and_models':True,'manual_changes_backed_up':True,
                     'scope':'Native bootstrap, shared runtime and actual short-sample transcription; not long-form editorial acceptance.'}
         except subprocess.CalledProcessError as exc:
             raise RuntimeError((exc.stdout or '')[-1500:]+'\n'+(exc.stderr or '')[-4000:]) from exc
