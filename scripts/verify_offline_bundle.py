@@ -13,6 +13,8 @@ import sys
 import tempfile
 import time
 import zipfile
+import struct
+import zlib
 
 
 def digest(path):
@@ -62,6 +64,16 @@ def verify(archive, report):
         if not readiness['ready'] or not readiness['bundled_runtime']:
             raise ValueError('完整包的本机转写检查未通过')
         ffmpeg=target/info['tools']['ffmpeg']
+        # Check the PNG path used for local video-frame/OCR preparation too.
+        def png_chunk(kind,data):
+            return struct.pack('>I',len(data))+kind+data+struct.pack('>I',zlib.crc32(kind+data)&0xffffffff)
+        picture=area/'本机 测试&图片.png'
+        picture.write_bytes(b'\x89PNG\r\n\x1a\n'+png_chunk(b'IHDR',struct.pack('>IIBBBBB',2,2,8,2,0,0,0))+
+                            png_chunk(b'IDAT',zlib.compress((b'\x00'+b'\xff'*6)*2))+png_chunk(b'IEND',b''))
+        frame=area/'frame.png'
+        invoke([ffmpeg,'-v','error','-i',picture,'-frames:v','1',frame],env)
+        if not frame.is_file() or not frame.read_bytes().startswith(b'\x89PNG'):
+            raise ValueError('完整包不能输出PNG画面')
         media=area/'原始 录音&测试.m4a'
         sample=target/'assets/runtime-smoke-zh.wav'
         language='zh' if sample.is_file() else 'en'
@@ -104,8 +116,9 @@ def verify(archive, report):
                 'transcribed_known_sample':True,'sample_language':language,'sample_text':text[:500],
                 'original_unchanged':True,'repeat_install':'unchanged','cache_reused':True,
                 'executable_mode_restored':restored_mode,'network_denied_during_asr':network_denied,
+                'png_decode_encode':True,
                 'elapsed_seconds':round(time.perf_counter()-started,3),
-                'scope':'完整包安装与本地转写链路；自制合成短句不证明真实整场准确率、说话人归属或文稿终审。'}
+                'scope':'完整包安装与本地转写链路；公开英文短样本不证明真实中文整场准确率、说话人归属或文稿终审。'}
     report.parent.mkdir(parents=True,exist_ok=True)
     report.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     return result

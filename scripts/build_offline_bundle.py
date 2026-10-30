@@ -93,21 +93,40 @@ def posix_windows(path):
     return '/' + value[0].lower() + value[2:] if len(value) > 1 and value[1] == ':' else value
 
 
-def build_ffmpeg(source, target, jobs):
+def msys_run(command):
+    bash=Path(os.environ.get('MSYS2_BASH','C:/msys64/usr/bin/bash.exe'))
+    if not bash.is_file():raise ValueError('Windows构建需要MSYS2/UCRT64；使用仓库的原生构建工作流')
+    env=dict(os.environ,MSYSTEM='UCRT64',MSYS2_PATH_TYPE='inherit',CHERE_INVOKING='1')
+    run([bash,'-lc','export PATH=/ucrt64/bin:/usr/bin:$PATH; '+command],env=env)
+
+
+def build_zlib(source,target,jobs):
+    if target=='windows-x64':
+        msys_run('cd '+shlex.quote(posix_windows(source))+' && make -f win32/Makefile.gcc PREFIX= -j'+str(jobs)+' libz.a')
+    else:
+        deployment='11.0' if target=='macos-arm64' else '10.15'
+        env=dict(os.environ,CFLAGS='-O3 -mmacosx-version-min='+deployment)
+        run(['sh','configure','--static'],source,env)
+        run(['make','-j'+str(jobs),'libz.a'],source,env)
+
+
+def build_ffmpeg(source, target, jobs, zlib):
     args = [
         '--disable-everything', '--disable-autodetect', '--disable-network',
         '--disable-doc', '--disable-debug', '--disable-ffplay', '--disable-asm',
         '--disable-gpl', '--disable-nonfree', '--disable-iconv', '--disable-bzlib',
-        '--disable-lzma', '--disable-zlib', '--disable-avdevice',
-        '--enable-protocol=file', '--enable-ffmpeg', '--enable-ffprobe',
+        '--disable-lzma', '--enable-zlib', '--disable-avdevice',
+        '--enable-protocol=file,pipe', '--enable-ffmpeg', '--enable-ffprobe',
         '--enable-avcodec', '--enable-avformat', '--enable-avfilter',
         '--enable-swresample', '--enable-swscale',
         '--enable-demuxer=mov,matroska,mp3,wav,aiff,flac,ogg,aac',
         '--enable-decoder=aac,aac_fixed,aac_latm,mp3,mp3float,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f64le,alac,flac,opus,vorbis,h264,hevc,vp9,vp8,av1,mjpeg,png,prores',
-        '--enable-encoder=pcm_s16le,aac,png,mjpeg', '--enable-muxer=wav,ipod,image2',
+        '--enable-encoder=pcm_s16le,aac,png,mjpeg', '--enable-muxer=wav,ipod,image2,null',
         '--enable-parser=aac,aac_latm,mpegaudio,flac,opus,vorbis,h264,hevc,vp8,vp9,av1,mjpeg,png',
         '--enable-filter=aresample,aformat,anull,atrim,asetpts,volume,volumedetect,pan,channelsplit,concat,crop,scale,fps,select,thumbnail',
     ]
+    location=posix_windows(zlib) if target=='windows-x64' else str(zlib)
+    args+=['--extra-cflags=-I'+location,'--extra-ldflags=-L'+location]
     if target.startswith('macos-'):
         deployment = '11.0' if target == 'macos-arm64' else '10.15'
         args += ['--cc=clang', '--extra-cflags=-mmacosx-version-min=' + deployment,
@@ -116,14 +135,10 @@ def build_ffmpeg(source, target, jobs):
         run(['make', '-j' + str(jobs), 'ffmpeg', 'ffprobe'], source)
     else:
         args += ['--target-os=mingw32', '--cc=gcc', '--cxx=g++', '--extra-ldflags=-static']
-        bash = Path(os.environ.get('MSYS2_BASH', 'C:/msys64/usr/bin/bash.exe'))
-        if not bash.is_file():
-            raise ValueError('Windows构建需要MSYS2/UCRT64；使用仓库的原生构建工作流')
-        command = 'export PATH=/ucrt64/bin:/usr/bin:$PATH; cd ' + shlex.quote(posix_windows(source))
+        command = 'cd ' + shlex.quote(posix_windows(source))
         command += ' && ' + shlex.join(['sh', 'configure', *args])
-        command += ' && make -j' + str(jobs) + ' ffmpeg ffprobe'
-        env = dict(os.environ, MSYSTEM='UCRT64', MSYS2_PATH_TYPE='inherit', CHERE_INVOKING='1')
-        run([bash, '-lc', command], env=env)
+        command += ' && make -j' + str(jobs) + ' ffmpeg.exe ffprobe.exe'
+        msys_run(command)
     return args
 
 
@@ -187,7 +202,7 @@ def build(target, cache, output, model_dir=None, jobs=4):
     if output.exists():
         raise FileExistsError('完整包目标已存在，原包保留')
     dependencies = json.loads((ROOT / 'assets/runtime-lock.json').read_text())['dependencies']
-    names = ['python-' + target, 'whisper-source', 'ffmpeg-source', 'yt-dlp-source', 'speech-model', 'vad-model']
+    names = ['python-' + target, 'whisper-source', 'ffmpeg-source', 'zlib-source', 'yt-dlp-source', 'speech-model', 'vad-model']
     archives = {}
     for name in names:
         item = dependencies[name]
@@ -203,7 +218,9 @@ def build(target, cache, output, model_dir=None, jobs=4):
     ffmpeg = extract(archives['ffmpeg-source'], work / 'ffmpeg')
     python = extract(archives['python-' + target], work / 'python')
     ytdlp = extract(archives['yt-dlp-source'], work / 'yt-dlp')
-    ffmpeg_args = build_ffmpeg(ffmpeg, target, jobs)
+    zlib=extract(archives['zlib-source'],work/'zlib')
+    build_zlib(zlib,target,jobs)
+    ffmpeg_args = build_ffmpeg(ffmpeg, target, jobs, zlib)
     whisper_exe, whisper_args = build_whisper(whisper, target, jobs)
     with tempfile.TemporaryDirectory(prefix='offline-package-', dir=cache) as temporary:
         stage = Path(temporary)
@@ -229,7 +246,7 @@ def build(target, cache, output, model_dir=None, jobs=4):
         for name in ('speech-model', 'vad-model'):
             shutil.copyfile(archives[name], runtime / 'models' / dependencies[name]['filename'])
         sources = runtime / 'sources'; sources.mkdir()
-        for name in ('ffmpeg-source', 'whisper-source', 'yt-dlp-source'):
+        for name in ('ffmpeg-source', 'whisper-source', 'zlib-source', 'yt-dlp-source'):
             shutil.copyfile(archives[name], sources / dependencies[name]['filename'])
         licenses = runtime / 'licenses'; licenses.mkdir()
         for name, path in [('FFmpeg-LICENSE.md', ffmpeg / 'LICENSE.md'),
@@ -237,13 +254,15 @@ def build(target, cache, output, model_dir=None, jobs=4):
                            ('whisper-MIT.txt', whisper / 'LICENSE'), ('yt-dlp-LICENSE.txt', ytdlp / 'LICENSE')]:
             shutil.copyfile(path, licenses / name)
         (licenses / 'IJG-NOTICE.txt').write_text('FFmpeg includes code based in part on the work of the Independent JPEG Group.\nThe upstream JPEG-derived source files are unmodified; the full FFmpeg source is included.\n', encoding='utf-8')
+        shutil.copyfile(zlib/('LICENSE' if (zlib/'LICENSE').is_file() else 'README'),licenses/'zlib-LICENSE.txt')
         info = {'schema_version': 1, 'target': target,
                 'model': 'runtime/models/' + dependencies['speech-model']['filename'],
                 'tools': {name: 'runtime/bin/' + name + suffix for name in ('ffmpeg', 'ffprobe', 'whisper-cli')},
                 'python': 'runtime/python/python.exe' if suffix else 'runtime/python/bin/python3.12',
                 'dependencies': {name: dependencies[name] for name in names},
-                'build': {'ffmpeg_flags': ffmpeg_args, 'whisper_flags': whisper_args,
-                          'purpose': 'Local transcription; no API key or media upload', 'ffmpeg_external_libraries': False}}
+                'build': {'ffmpeg_flags':[a.replace(posix_windows(zlib) if suffix else str(zlib),'<ZLIB_SOURCE>') for a in ffmpeg_args],
+                          'whisper_flags':[a.replace(str(whisper),'<WHISPER_SOURCE>') for a in whisper_args],
+                          'purpose':'Local transcription; no API key or media upload','ffmpeg_external_libraries':['zlib']}}
         info['tools']['yt-dlp'] = 'runtime/vendor/yt_dlp/__main__.py'
         (runtime / 'runtime.json').write_text(json.dumps(info, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
         (folder / 'media-editor.command').chmod(0o755)

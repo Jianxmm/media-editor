@@ -7,7 +7,7 @@
 - [whisper.cpp](https://github.com/ggml-org/whisper.cpp)：本地转写工具（MIT）；基础包需另备模型，完整包包含固定版本的ggml语音模型。
 - [python-build-standalone](https://github.com/astral-sh/python-build-standalone)：完整包使用的便携CPython，保留运行目录内的许可与说明。
 
-完整包中的FFmpeg由本项目从所列源码构建，未启用GPL、nonfree或外部编码库；源码原包与构建参数随`runtime/sources/`和构建脚本提供。Whisper与yt-dlp原始源码同样随包保留。FFmpeg部分代码基于Independent JPEG Group的工作，相关源文件未经本项目修改。
+完整包中的FFmpeg由本项目从所列源码构建，未启用GPL、nonfree或外部编码库；PNG所需zlib同样从固定源码构建，保留其许可。源码原包与构建参数随`runtime/sources/`和构建脚本提供。Whisper与yt-dlp原始源码同样随包保留。FFmpeg部分代码基于Independent JPEG Group的工作，相关源文件未经本项目修改。
 
 完整包的`runtime/samples/jfk.wav`随whisper.cpp上游源码提供，仅用于验证安装和识别链路，不作为中文或长场内容质量标杆。不包含用户真实录音。
 

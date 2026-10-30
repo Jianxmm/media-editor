@@ -8,7 +8,7 @@
 | Mac苹果芯片（M系列） | `media-editor-macos-arm64.zip` |
 | Mac Intel芯片 | `media-editor-macos-x64.zip` |
 
-每包只有一个`media-editor`Skill文件夹，包含便携Python、FFmpeg/ffprobe、Whisper本地程序、语音模型和链接获取模块。无需API Key，不依赖Workbuddy有没有AudioTranscribe。解压保留整个文件夹；不能混用不同系统的程序。构建时的FFmpeg仅启用常见本地媒体格式和必要的音频/画面处理，不包含网络协议或第三方编码库。
+每包只有一个`media-editor`Skill文件夹，包含便携Python、FFmpeg/ffprobe、Whisper本地程序、语音模型和链接获取模块。无需API Key，不依赖Workbuddy有没有AudioTranscribe。解压保留整个文件夹；不能混用不同系统的程序。构建时的FFmpeg仅启用常见本地媒体格式和必要的音频/画面处理，不包含网络协议或第三方编码库；PNG所需zlib同样从固定源码构建。
 
 ## 安装和执行
 
