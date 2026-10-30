@@ -15,6 +15,7 @@ WRAPPER=('assets/download-button.svg','assets/readme-cover.svg','.gitignore','.g
          'scripts/multi_livestream.py','scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py','scripts/bundled_runtime.py',
          'media-editor.command','media-editor.cmd',
          'assets/runtime-lock.json','scripts/build_offline_bundle.py','scripts/verify_offline_bundle.py','tests/test_bundled_runtime.py',
+         'assets/runtime-licenses/Whisper-model-MIT.txt','assets/runtime-licenses/Silero-VAD-MIT.txt',
          'scripts/bundle_launcher.py',
          'build_package.py','install.py','tests/test_multi_livestream.py','tests/test_install_package.py','tests/test_media_intake.py','tests/test_user_workflow.py','tests/test_review_records.py')
 

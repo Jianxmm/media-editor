@@ -16,7 +16,7 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from local_support import LocalLock, count, measured, file_state, unchanged, profile_core, profile_terms
-from bundled_runtime import bundled_tool, bundled_model, prepare_environment, runtime_info
+from bundled_runtime import bundled_tool, bundled_model, prepare_environment, runtime_info, resource
 
 
 def digest(path: Path) -> str:
@@ -73,12 +73,12 @@ def clean_url(value: str) -> str:
 
 
 def check_task(task: str, model: Path | None=None) -> dict:
+    info=runtime_info()
     needs={'text':[], 'subtitle':['python3'], 'url':['yt-dlp','ffprobe'],
            'local-asr':['ffmpeg','ffprobe','whisper-cli']}[task]
-    found={name:bool(bundled_tool(name) or shutil.which(name)) for name in needs}
+    found={name:bool(resource(info['python']) if name=='python3' and info else bundled_tool(name) or shutil.which(name)) for name in needs}
     model=(model.expanduser().resolve() if model else bundled_model()) if task=='local-asr' else None
     model_present=bool(model and model.is_file())
-    info=runtime_info()
     return {'task':task,'tools':found,'ready':all(found.values()) and (model_present if task=='local-asr' else True),
             'bundled_runtime':bool(info),'model':str(model) if model else None,
             'note':'完整包已检查包内工具和模型；基础包需另提供模型。实际转写仍须验证，不代表原声听辨或说话人核验。'}

@@ -41,6 +41,13 @@ class BundledRuntimeTests(unittest.TestCase):
             self.assertFalse(media_intake.check_task('local-asr')['ready'])
             self.assertTrue(media_intake.check_task('local-asr',model)['ready'])
 
+    def test_subtitle_check_uses_bundled_python_without_global_python3(self):
+        import media_intake
+        with patch.object(media_intake,'runtime_info',return_value={'python':'runtime/python/python.exe'}), \
+             patch.object(media_intake,'resource',return_value=Path(self.temp.name)), \
+             patch('shutil.which',return_value=None):
+            self.assertTrue(media_intake.check_task('subtitle')['ready'])
+
     def test_full_bundle_missing_engine_never_borrows_global_engine(self):
         self.config()
         with patch('shutil.which',return_value='/developer/bin/whisper-cli'):

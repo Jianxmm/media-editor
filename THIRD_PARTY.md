@@ -11,6 +11,8 @@
 
 完整包的`runtime/samples/jfk.wav`随whisper.cpp上游源码提供，仅用于验证安装和识别链路，不作为中文或长场内容质量标杆。不包含用户真实录音。
 
+模型许可也随包保留：Whisper权重的OpenAI MIT声明来自`openai/whisper@86098128c0b4f24f0e2aa2994de830614b474227`，Silero VAD的MIT声明来自`snakers4/silero-vad@066409f3d9db45a30d21dfcbf9147826ffdd7052`，存于`assets/runtime-licenses/`并复制到完整包的许可目录。
+
 内置直播核心的依赖、模型来源与许可另见 [.livestream-core/THIRD_PARTY.md](.livestream-core/THIRD_PARTY.md)。
 
 设计方法参考[音视频转录与长文整理](https://scys.com/skillhub/skills/skl_media-transcriber?from=copy_link&v=1.1.0)；本包不包含该 Skill 的源码或正文。外部作品的权利归其权利人，不能因本包提供 MIT 许可而推断外部模型、素材或其他 Skill 的许可。

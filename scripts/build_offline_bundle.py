@@ -255,6 +255,8 @@ def build(target, cache, output, model_dir=None, jobs=4):
             shutil.copyfile(path, licenses / name)
         (licenses / 'IJG-NOTICE.txt').write_text('FFmpeg includes code based in part on the work of the Independent JPEG Group.\nThe upstream JPEG-derived source files are unmodified; the full FFmpeg source is included.\n', encoding='utf-8')
         shutil.copyfile(zlib/('LICENSE' if (zlib/'LICENSE').is_file() else 'README'),licenses/'zlib-LICENSE.txt')
+        for notice in (ROOT/'assets/runtime-licenses').glob('*.txt'):
+            shutil.copyfile(notice,licenses/notice.name)
         info = {'schema_version': 1, 'target': target,
                 'model': 'runtime/models/' + dependencies['speech-model']['filename'],
                 'tools': {name: 'runtime/bin/' + name + suffix for name in ('ffmpeg', 'ffprobe', 'whisper-cli')},
