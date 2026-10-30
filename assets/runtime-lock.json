@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "dependencies": {
+    "python-macos-arm64": {
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "sha256": "353d5f1b4fd2715e7053f12f068435d5bbad16b91e057006b5d01e0925709a7e",
+      "filename": "cpython-3.12.16+20261026-aarch64-apple-darwin-install_only_stripped.tar.gz",
+      "bytes": 25035343
+    },
+    "python-macos-x64": {
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-x86_64-apple-darwin-install_only_stripped.tar.gz",
+      "sha256": "37c38fda76fec1fbf310adcbafb7f0d96af13b5511bf8ea954c3aa8eec185734",
+      "filename": "cpython-3.12.16+20261026-x86_64-apple-darwin-install_only_stripped.tar.gz",
+      "bytes": 24757272
+    },
+    "python-windows-x64": {
+      "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+      "sha256": "1f2ab53880fc67ea323398c6388e05af28addc99a8e389209f08a51fdff4b149",
+      "filename": "cpython-3.12.16+20261026-x86_64-pc-windows-msvc-install_only_stripped.tar.gz",
+      "bytes": 22014416
+    },
+    "whisper-source": {
+      "url": "https://github.com/ggml-org/whisper.cpp/archive/d2a764c648779feb36d44363f212a29b00aad1af.tar.gz",
+      "filename": "whisper-source.tar.gz",
+      "sha256": "f70aa528fcb2c4a3c843485cc8f299e7fee29d87b2b71b3f145504dc4b99a5ba",
+      "bytes": 9630445
+    },
+    "ffmpeg-source": {
+      "url": "https://github.com/FFmpeg/FFmpeg/archive/d22ecc4f6f3fca77b3e71b18641ceddb25973e97.tar.gz",
+      "filename": "ffmpeg-source.tar.gz",
+      "sha256": "8259ad7ae6ea3ebf1450632560fd9843199a7cb349f51c9654a34eb49217a1d7",
+      "bytes": 16422766
+    },
+    "yt-dlp-source": {
+      "url": "https://github.com/yt-dlp/yt-dlp/archive/refs/tags/2026.10.26.tar.gz",
+      "filename": "yt-dlp-source.tar.gz",
+      "version": "2026.10.26",
+      "sha256": "7d5da51731c3f5f5db13d16249fae085e170cc58807c43d68dcb41b7ede99a0d",
+      "bytes": 3084414
+    },
+    "speech-model": {
+      "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo-q5_0.bin",
+      "sha256": "394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2",
+      "bytes": 574041195,
+      "filename": "ggml-large-v3-turbo-q5_0.bin"
+    },
+    "vad-model": {
+      "url": "https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v6.2.0.bin",
+      "sha256": "2aa269b785eeb53a82983a20501ddf7c1d9c48e33ab63a41391ac6c9f7fb6987",
+      "bytes": 885098,
+      "filename": "ggml-silero-v6.2.0.bin"
+    }
+  }
+}

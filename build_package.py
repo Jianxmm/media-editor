@@ -10,8 +10,12 @@ import zipfile
 
 ROOT=Path(__file__).resolve().parent
 WRAPPER=('assets/download-button.svg','assets/readme-cover.svg','.gitignore','.github/workflows/ci.yml','SKILL.md','README.md','START_HERE.md','examples/整理前后.md','VALIDATION.md','THIRD_PARTY.md','LICENSE','VERSION','agents/openai.yaml',
-         'references/multi.md','references/general.md','references/routing.md','references/acquisition.md','references/review-list.md','references/personalization.md','references/maintenance.md',
-         'scripts/multi_livestream.py','scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py',
+         '.github/workflows/offline.yml',
+         'references/multi.md','references/general.md','references/routing.md','references/acquisition.md','references/review-list.md','references/personalization.md','references/maintenance.md','references/offline.md',
+         'scripts/multi_livestream.py','scripts/media_intake.py','scripts/local_support.py','scripts/workspace_tools.py','scripts/bundled_runtime.py',
+         'media-editor.command','media-editor.cmd',
+         'assets/runtime-lock.json','scripts/build_offline_bundle.py','scripts/verify_offline_bundle.py','tests/test_bundled_runtime.py',
+         'scripts/bundle_launcher.py',
          'build_package.py','install.py','tests/test_multi_livestream.py','tests/test_install_package.py','tests/test_media_intake.py','tests/test_user_workflow.py','tests/test_review_records.py')
 
 def build(output: Path) -> dict:

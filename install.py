@@ -15,6 +15,20 @@ sys.path.insert(0, str(ROOT/'scripts'))
 from local_support import LocalLock
 
 
+def file_hash(path):
+    value=hashlib.sha256()
+    with path.open('rb') as stream:
+        for block in iter(lambda:stream.read(4*1024*1024),b''):value.update(block)
+    return value.hexdigest()
+
+
+def executable_files(source, files):
+    names=json.loads((source/'PACKAGE-MANIFEST.json').read_text(encoding='utf-8')).get('executable_files',[])
+    if not isinstance(names,list) or any(not isinstance(n,str) or n not in files for n in names):
+        raise ValueError('安装包执行权限清单无效')
+    return set(names)
+
+
 def checked_files(source):
     manifest = source/'PACKAGE-MANIFEST.json'
     if manifest.is_symlink() or not manifest.is_file():
@@ -30,8 +44,12 @@ def checked_files(source):
         path = source/rel
         if any((source/Path(*rel.parts[:i])).is_symlink() for i in range(1,len(rel.parts)+1)):
             raise ValueError('安装包包含符号链接')
-        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=expected:
+        if not path.is_file() or file_hash(path)!=expected:
             raise ValueError('安装包文件校验失败：'+name)
+    executable_files(source,files)
+    if (source/'runtime/runtime.json').is_file():
+        from bundled_runtime import runtime_info
+        runtime_info(source)
     return files
 
 
@@ -50,6 +68,7 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
     if source==target or source.is_relative_to(target) or target.is_relative_to(source):
         raise ValueError('安装目录不能与解压目录互相包含')
     files=checked_files(source)
+    executables=executable_files(source,files)
     target.parent.mkdir(parents=True,exist_ok=True)
     with LocalLock(target.parent/'.media-editor-install.lock'):
         if target.exists():
@@ -60,9 +79,11 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
             identical=present==set(files)|{'PACKAGE-MANIFEST.json'}
             identical=identical and not any(p.is_symlink() for p in target.rglob('*'))
             if identical:
-                identical=all(hashlib.sha256((target/name).read_bytes()).hexdigest()==sha for name,sha in files.items())
+                identical=all(file_hash(target/name)==sha for name,sha in files.items())
                 identical=identical and (target/'PACKAGE-MANIFEST.json').read_bytes()==(source/'PACKAGE-MANIFEST.json').read_bytes()
-            if identical: return {'target':str(target),'status':'unchanged','backup':None}
+            if identical:
+                for name in executables:(target/name).chmod(0o755)
+                return {'target':str(target),'status':'unchanged','backup':None}
             if not upgrade: raise FileExistsError('已有不同版本或人工修改；请明确使用 --upgrade，旧版会完整备份。')
         backup=None
         if target.exists():
@@ -73,7 +94,8 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
             for name,sha in files.items():
                 out=stage/PurePosixPath(name);out.parent.mkdir(parents=True,exist_ok=True)
                 shutil.copyfile(source/PurePosixPath(name),out)
-                if hashlib.sha256(out.read_bytes()).hexdigest()!=sha: raise ValueError('复制校验失败')
+                if name in executables:out.chmod(0o755)
+                if file_hash(out)!=sha: raise ValueError('复制校验失败')
             shutil.copyfile(source/'PACKAGE-MANIFEST.json',stage/'PACKAGE-MANIFEST.json')
             if backup:shutil.move(str(target),str(backup))
             try: stage.rename(target)
@@ -112,6 +134,10 @@ if __name__=='__main__':
     try:
         result=restore(args.restore,args.target) if args.restore else install(ROOT,args.target,upgrade=args.upgrade,backup_dir=args.backup_dir)
         print(json.dumps(result,ensure_ascii=False,indent=2))
-        print('文稿整理已就绪。新建对话，提供材料并说明你希望得到什么。')
+        installed=Path(result.get('target',ROOT))
+        if (installed/'runtime/runtime.json').is_file():
+            print('文稿整理及内置转写文件已安装；请运行包内启动器 doctor --task local-asr 检查本机可用性。')
+        else:
+            print('文稿整理 Skill 已安装。本包未包含转写程序与语音模型；只有音视频时需另配环境，或下载对应系统的转写完整包。')
     except (OSError,ValueError,TypeError) as exc:
         print('INSTALL=BLOCKED: '+str(exc));raise SystemExit(1)

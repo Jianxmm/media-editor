@@ -1,0 +1,51 @@
+name: Offline bundles
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/offline-runtime-bundles]
+permissions:
+  contents: read
+jobs:
+  bundle:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows-x64
+          - os: macos-15
+            target: macos-arm64
+          - os: macos-15-intel
+            target: macos-x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare Windows compiler
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: make mingw-w64-ucrt-x86_64-gcc
+      - name: Build native complete package
+        run: python -B scripts/build_offline_bundle.py --target ${{ matrix.target }} --cache .offline-cache --output dist/media-editor-${{ matrix.target }}.zip --jobs 3
+      - name: Verify without preinstalled transcription tools
+        run: python -B scripts/verify_offline_bundle.py dist/media-editor-${{ matrix.target }}.zip --report dist/media-editor-${{ matrix.target }}.verify.json
+      - name: Verify runtime and installer contracts
+        run: python -B -m unittest discover -s tests -p test_bundled_runtime.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-${{ matrix.target }}
+          path: |
+            dist/media-editor-${{ matrix.target }}.zip
+            dist/media-editor-${{ matrix.target }}.verify.json
+            dist/media-editor-${{ matrix.target }}.build.json
+          compression-level: 0
+          retention-days: 7

@@ -2,7 +2,7 @@
 name: media-editor
 description: 把视频、播客、演讲、对谈、直播和转写初稿整理成保留原意的完整文稿与待核清单，也支持摘要、逐字稿和带时间稿。所有完整整理共用质量标准，按单人讲述、对话、多人互动及证据情况选择处理方法。
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   compatibility: 需要可读写文件的 AI 助手；使用音视频、下载或本地转写时按需检查工具。回听、转写及联网能力依宿主而定。
 ---
 
@@ -31,7 +31,7 @@ metadata:
 
 ## 按需材料与恢复
 
-- 缺少完整转写时读[素材获取与转写](references/acquisition.md)；已有完整转写先用，分段接缝和空白候选按真实原声核对。
+- 缺少完整转写时读[素材获取与转写](references/acquisition.md)；有`runtime/runtime.json`时优先使用[完整包内置转写](references/offline.md)，不默认借用Agent的云转写。已有完整转写先用，分段接缝和空白候选按真实原声核对。
 - 有本场词库或参考偏好时读[共用资料](references/personalization.md)，保存快照；私人资料不随技能分发，本场事实优先。
 - 安装、升级、中断恢复或计时读[维护说明](references/maintenance.md)。工具耗时不冒充全程或真人用时，未测阶段保持未知。
 

@@ -16,6 +16,7 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from local_support import LocalLock, count, measured, file_state, unchanged, profile_core, profile_terms
+from bundled_runtime import bundled_tool, bundled_model, prepare_environment, runtime_info
 
 
 def digest(path: Path) -> str:
@@ -27,17 +28,20 @@ def digest(path: Path) -> str:
 
 
 def required(name: str) -> str:
-    result=shutil.which(name)
+    prepare_environment()
+    result=bundled_tool(name) or shutil.which(name)
     if not result:raise ValueError('找不到工具 '+name+'；请按使用说明准备，或提供已有逐字稿。')
-    return result
+    return str(result)
 
 
 def run(args: list[str]) -> subprocess.CompletedProcess:
     started=time.perf_counter()
-    try:return subprocess.run(args,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,check=False)
+    if Path(args[0]).name=='__main__.py' and Path(args[0]).parent.name=='yt_dlp':
+        args=[sys.executable,'-B',*args]
+    try:return subprocess.run(args,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',check=False)
     finally:
         tool=Path(args[0]).stem
-        name='transcription' if 'whisper' in tool else 'download' if 'yt-dlp' in tool else 'audio' if tool=='ffmpeg' else 'probe'
+        name='transcription' if 'whisper' in tool else 'download' if 'yt-dlp' in tool or 'yt_dlp' in ' '.join(args[:3]) else 'audio' if tool=='ffmpeg' else 'probe'
         count(name,time.perf_counter()-started)
 
 
@@ -71,9 +75,12 @@ def clean_url(value: str) -> str:
 def check_task(task: str) -> dict:
     needs={'text':[], 'subtitle':['python3'], 'url':['yt-dlp','ffprobe'],
            'local-asr':['ffmpeg','ffprobe','whisper-cli']}[task]
-    found={name:bool(shutil.which(name)) for name in needs}
-    return {'task':task,'tools':found,'ready':all(found.values()),
-            'note':'仅检查工具；模型、平台权限及实际转写质量需单独核对。'}
+    found={name:bool(bundled_tool(name) or shutil.which(name)) for name in needs}
+    model=bundled_model() if task=='local-asr' else None
+    info=runtime_info()
+    return {'task':task,'tools':found,'ready':all(found.values()) and (bool(model) if task=='local-asr' else True),
+            'bundled_runtime':bool(info),'model':str(model) if model else None,
+            'note':'完整包已检查包内工具和模型；基础包需另提供模型。实际转写仍须验证，不代表原声听辨或说话人核验。'}
 
 
 @measured('fetch')
@@ -215,9 +222,11 @@ def source_clip(ffmpeg: str, media: Path, output: Path, name: str,
 
 
 @measured('transcribe')
-def transcribe(media: Path, output: Path, model: Path, language: str, chunk_seconds: int, threads: int,
+def transcribe(media: Path, output: Path, model: Path | None, language: str, chunk_seconds: int, threads: int,
                cli: str='whisper-cli', profile: Path | None=None) -> dict:
     output=output.expanduser().absolute()
+    model=model or bundled_model()
+    if model is None:raise ValueError('未配置转写模型；请使用转写完整包，或通过 --model 指定已有本地模型。')
     media=media.expanduser().resolve();model=model.expanduser().resolve()
     if not media.is_file() or not model.is_file():raise ValueError('媒体或本地模型文件不存在。')
     if not 30<=chunk_seconds<=3600 or not 1<=threads<=64:raise ValueError('分段秒数须为 30–3600，线程须为 1–64。')
@@ -358,7 +367,7 @@ def main() -> int:
     get.add_argument('--kind',choices=['video','audio','subtitle'],default='video')
     get.add_argument('--subtitle-language',default='zh',help='字幕实际语言代码；先选人工字幕，再尝试自动字幕')
     asr=sub.add_parser('transcribe');asr.add_argument('media',type=Path);asr.add_argument('--output-dir',type=Path,required=True)
-    asr.add_argument('--model',type=Path,required=True);asr.add_argument('--language',default='auto')
+    asr.add_argument('--model',type=Path,help='完整包自动使用内置模型；基础包需指定已有模型');asr.add_argument('--language',default='auto')
     asr.add_argument('--chunk-seconds',type=int,default=600);asr.add_argument('--threads',type=int,default=4)
     asr.add_argument('--profile',type=Path,help='本机个人资料；只将已确认专名用于本地识别提示')
     args=parser.parse_args()

@@ -9,6 +9,8 @@ __pycache__/
 /我的文稿资料/
 /.local/
 /dist/
+/.offline-cache/
+/runtime/
 *.zip
 *.wav
 *.mp4
