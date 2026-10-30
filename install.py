@@ -47,7 +47,7 @@ def checked_files(source):
         if not path.is_file() or file_hash(path)!=expected:
             raise ValueError('安装包文件校验失败：'+name)
     executable_files(source,files)
-    if (source/'runtime/runtime.json').is_file():
+    if (source/'runtime/runtime.json').is_file() or (source/'.runtime-path').exists():
         from bundled_runtime import runtime_info
         runtime_info(source)
     return files
@@ -75,9 +75,11 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
             if not target.is_dir(): raise FileExistsError('安装位置不是文件夹')
             present={p.relative_to(target).as_posix() for p in target.rglob('*')
                      if (p.is_file() or p.is_symlink()) and '__pycache__' not in p.relative_to(target).parts
-                     and p.suffix!='.pyc' and p.name!='.DS_Store'}
+                     and p.suffix!='.pyc' and p.name not in {'.DS_Store','.runtime-path'}}
             identical=present==set(files)|{'PACKAGE-MANIFEST.json'}
             identical=identical and not any(p.is_symlink() for p in target.rglob('*'))
+            if (source/'.runtime-path').is_file():
+                identical=identical and (target/'.runtime-path').is_file() and (target/'.runtime-path').read_bytes()==(source/'.runtime-path').read_bytes()
             if identical:
                 identical=all(file_hash(target/name)==sha for name,sha in files.items())
                 identical=identical and (target/'PACKAGE-MANIFEST.json').read_bytes()==(source/'PACKAGE-MANIFEST.json').read_bytes()
@@ -97,6 +99,28 @@ def install(source: Path, target: Path, *, upgrade=False, backup_dir=None) -> di
                 if name in executables:out.chmod(0o755)
                 if file_hash(out)!=sha: raise ValueError('复制校验失败')
             shutil.copyfile(source/'PACKAGE-MANIFEST.json',stage/'PACKAGE-MANIFEST.json')
+            if not (stage/'runtime').exists() and (source/'.runtime-path').is_file():
+                if (source/'.runtime-path').is_symlink():raise ValueError('运行环境指针不能是链接')
+                shutil.copyfile(source/'.runtime-path',stage/'.runtime-path')
+            # A rules-only update must not remove a working transcription runtime.
+            if target.exists() and not (stage/'runtime').exists() and not (stage/'.runtime-path').exists():
+                if (target/'runtime').is_dir():
+                    meta=json.loads((stage/'PACKAGE-MANIFEST.json').read_text(encoding='utf-8'))
+                    old=json.loads((target/'PACKAGE-MANIFEST.json').read_text(encoding='utf-8'))
+                    for name,sha in old['files'].items():
+                        if name.startswith('runtime/'):
+                            p=target/PurePosixPath(name)
+                            if p.is_symlink() or file_hash(p)!=sha:raise ValueError('原运行环境已变更：'+name)
+                    if any(p.is_symlink() for p in (target/'runtime').rglob('*')):raise ValueError('原运行环境包含链接')
+                    shutil.copytree(target/'runtime',stage/'runtime')
+                    for name,sha in old['files'].items():
+                        if name.startswith('runtime/'):meta['files'][name]=sha
+                    meta['executable_files']=sorted(set(meta.get('executable_files',[]))|{n for n in old.get('executable_files',[]) if n.startswith('runtime/')})
+                    (stage/'PACKAGE-MANIFEST.json').write_text(json.dumps(meta,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+                elif (target/'.runtime-path').is_file():
+                    pointer=target/'.runtime-path'
+                    if pointer.is_symlink():raise ValueError('运行环境指针不能是链接')
+                    shutil.copyfile(pointer,stage/'.runtime-path')
             if backup:shutil.move(str(target),str(backup))
             try: stage.rename(target)
             except Exception:

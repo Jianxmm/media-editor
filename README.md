@@ -1,4 +1,4 @@
-> v1.0.1 正式版：完整整理共用一套质量标准。只有音视频时请下载对应系统的转写完整包，包含Python、FFmpeg、Whisper和模型；基础Skill包不含这些程序。[完整包说明](references/offline.md) · [验证范围](VALIDATION.md)
+> v1.0.2 正式版：完整整理共用一套质量标准。基础Skill支持首次按需准备共用转写环境；离线使用可下载含Python、FFmpeg、Whisper和模型的完整包。[完整包说明](references/offline.md) · [验证范围](VALIDATION.md)
 
 <p align="center">
   <img src="assets/readme-cover.svg" alt="文稿整理：直播、视频、播客和转写初稿，整理成文稿与待核清单" width="100%">
@@ -24,7 +24,7 @@
 
 ```text
 帮我安装“文稿整理”Skill：https://github.com/Jianxmm/media-editor
-请识别我的电脑系统；只有音视频时下载对应系统的转写完整包，使用包内程序和模型。已装过的话，升级前先完整备份旧版。
+请下载同版基础Skill包安装；需要本地转写时通过包内启动器自动准备共用环境。离线电脑使用对应系统的完整包。已装过的话，升级前先完整备份旧版。
 ```
 
 安装完成后开启新对话，直接说“用文稿整理处理这份材料”。只装这一个，直播整理规则已经包含在里面。
@@ -42,7 +42,7 @@
 | 苹果芯片Mac（M系列） | [苹果芯片Mac完整包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor-macos-arm64.zip) |
 | Intel Mac | [Intel Mac完整包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor-macos-x64.zip) |
 
-只整理已有转写稿，可下载[基础Skill包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip)。完整包较大，优先让Agent从解压后的本地目录安装；不同客户端上传大ZIP的限制不属于已验证范围。
+推荐下载[小Skill包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip)。小Skill首次使用本地转写时自动下载共用程序与模型；完整包较大，适合离线携带。优先让Agent从解压后的本地目录安装；不同客户端上传大ZIP的限制不属于已验证范围。
 
 1. 点击上面的按钮下载，解压得到 `media-editor` 文件夹，保留其中的全部文件。
 2. 在所用工具的 Skill 管理中导入整个文件夹；如果工具要求放入指定目录，按它的说明放到技能文件夹。

@@ -119,9 +119,9 @@ def build_ffmpeg(source, target, jobs, zlib):
         '--enable-protocol=file,pipe', '--enable-ffmpeg', '--enable-ffprobe',
         '--enable-avcodec', '--enable-avformat', '--enable-avfilter',
         '--enable-swresample', '--enable-swscale',
-        '--enable-demuxer=mov,matroska,mp3,wav,aiff,flac,ogg,aac,image2,png_pipe,jpeg_pipe',
+        '--enable-demuxer=mov,matroska,mp3,wav,aiff,flac,ogg,aac,flv,mpegts,image2,png_pipe,jpeg_pipe',
         '--enable-decoder=aac,aac_fixed,aac_latm,mp3,mp3float,pcm_s16le,pcm_s16be,pcm_s24le,pcm_s24be,pcm_s32le,pcm_s32be,pcm_f32le,pcm_f64le,alac,flac,opus,vorbis,h264,hevc,vp9,vp8,av1,mjpeg,png,prores',
-        '--enable-encoder=pcm_s16le,aac,png,mjpeg', '--enable-muxer=wav,ipod,image2,null',
+        '--enable-encoder=pcm_s16le,aac,png,mjpeg', '--enable-muxer=wav,ipod,mp4,mov,matroska,webm,flv,mpegts,image2,null',
         '--enable-parser=aac,aac_latm,mpegaudio,flac,opus,vorbis,h264,hevc,vp8,vp9,av1,mjpeg,png',
         '--enable-filter=aresample,aformat,anull,atrim,asetpts,volume,volumedetect,pan,channelsplit,concat,crop,scale,fps,select,thumbnail',
     ]

@@ -12,6 +12,8 @@ python <下载包>/install.py --target <实际技能目录>/media-editor --upgra
 python <下载包>/install.py --target <实际技能目录>/media-editor --restore <先前返回的备份目录>
 ```
 
+普通用户从Release发行资产安装，Windows不把可能经Git改过换行的源码克隆当成发行包。完整包或已准备共用环境时使用`media-editor.command`／`media-editor.cmd`的`install`命令，避免另找Python。
+
 新下载包先校验再操作；相同版本和内容重复安装返回 unchanged。不同版本或人工修改默认不覆盖；明确升级时旧安装完整移到技能扫描目录外的备份位置。复制新包失败会恢复旧安装。回退会保留原备份，并另备份回退前的安装。不要把用户资料迁入安装目录，不因升级重写历史稿。
 
 ## 一份词库用于各种素材

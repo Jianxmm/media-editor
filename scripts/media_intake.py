@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import re
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from local_support import LocalLock, count, measured, file_state, unchanged, profile_core, profile_terms
@@ -45,10 +46,20 @@ def run(args: list[str]) -> subprocess.CompletedProcess:
         count(name,time.perf_counter()-started)
 
 
+def failure(stage: str, result, message: str) -> ValueError:
+    # Retain the failure category without echoing signed URLs, credentials or paths.
+    detail=(result.stderr or '')[-4000:]
+    category=('格式合并失败' if re.search(r'muxer|merg|Postprocessing',detail,re.I) else
+              '格式不支持或文件损坏' if re.search(r'Invalid data|format.*not.*known|decoder',detail,re.I) else
+              '访问受限' if re.search(r'403|401|login|sign in|captcha',detail,re.I) else
+              '网络连接失败' if re.search(r'timeout|connection|resolve|SSL',detail,re.I) else '外部工具执行失败')
+    return ValueError(f'{stage}：{category}（退出码{result.returncode}）。{message}')
+
+
 def probe(media: Path) -> float:
     result=run([required('ffprobe'),'-v','error','-show_entries','format=duration:stream=codec_type',
                 '-of','json',str(media)])
-    if result.returncode:raise ValueError('无法读取媒体；请检查格式和文件是否完整。')
+    if result.returncode:raise failure('读取媒体',result,'请检查格式和文件完整性。')
     info=json.loads(result.stdout)
     if not any(row.get('codec_type')=='audio' for row in info.get('streams',[])):
         raise ValueError('媒体没有可用音轨。')
@@ -100,7 +111,7 @@ def fetch(url: str, output: Path, mode: str, subtitle_language: str='zh') -> dic
     # Resolve at most one playlist entry before rejecting a collection.
     if state is None:
         meta=run([ytdlp,'--ignore-config','--no-playlist','--playlist-items','1','--skip-download','--dump-single-json',url])
-        if meta.returncode:raise ValueError('无法读取链接；请提供有权限访问的链接或原文件。')
+        if meta.returncode:raise failure('读取链接',meta,'请检查访问权限或提供本地文件。')
         info=json.loads(meta.stdout)
         if not isinstance(info,dict) or info.get('_type') in {'playlist','multi_video'} or 'entries' in info:
             raise ValueError('请提供一条明确的视频或播客单集链接。')
@@ -137,7 +148,9 @@ def fetch(url: str, output: Path, mode: str, subtitle_language: str='zh') -> dic
             command=common+['-f',fmt,url]
         downloaded=run(command)
         media=[x for x in output.iterdir() if x.is_file() and x.name.startswith('media.') and not x.name.endswith(('.part','.ytdl'))]
-        if downloaded.returncode or len(media)!=1:
+        if downloaded.returncode:
+            raise failure('下载或合并',downloaded,'已保留现场；先排除原因，再使用同一链接、选项和目录继续。')
+        if len(media)!=1:
             raise ValueError('下载尚未完成；原目录和分段已保留，使用同一链接、目录和选项可继续。')
         seconds=None if subtitle_kind else probe(media[0])
         record={'status':'media_available','source':state['source'],'source_id':state['source_id'],
@@ -275,11 +288,13 @@ def transcribe(media: Path, output: Path, model: Path | None, language: str, chu
                     wav=Path(temp)/'audio.wav';stem=Path(temp)/'result'
                     conv=run([ffmpeg,'-nostdin','-v','error','-ss',f'{start/1000:.3f}',
                               '-t',f'{span/1000:.3f}','-i',str(media),'-vn','-ar','16000','-ac','1',str(wav)])
-                    if conv.returncode or not wav.is_file():raise ValueError('音轨提取失败；已完成的分段保留。')
+                    if conv.returncode:raise failure('音轨提取',conv,'已完成的分段保留。')
+                    if not wav.is_file():raise ValueError('音轨提取没有生成文件；已完成的分段保留。')
                     command=[whisper,'-m',str(model),'-f',str(wav),'-l',language,'-t',str(threads),'-oj','-of',str(stem),'-np']
                     if prompt:command+=['--prompt',prompt]
                     res=run(command)
-                    if res.returncode or not stem.with_suffix('.json').is_file():raise ValueError('本地转写失败；已完成的分段保留。')
+                    if res.returncode:raise failure('本地识别',res,'已完成的分段保留。')
+                    if not stem.with_suffix('.json').is_file():raise ValueError('本地识别没有生成结果；已完成的分段保留。')
                     generated=json.loads(stem.with_suffix('.json').read_text(encoding='utf-8'))
                     rows=generated.get('transcription')
                     if not isinstance(rows,list):raise ValueError('转写输出缺少分段。')

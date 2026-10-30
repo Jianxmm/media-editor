@@ -18,3 +18,5 @@ __pycache__/
 *.mp3
 *.bin
 .run-times.jsonl
+
+/.runtime-path

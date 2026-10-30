@@ -40,6 +40,12 @@ jobs:
         run: python -B scripts/verify_offline_bundle.py dist/media-editor-${{ matrix.target }}.zip --report dist/media-editor-${{ matrix.target }}.verify.json
       - name: Verify runtime and installer contracts
         run: python -B -m unittest discover -s tests -p test_bundled_runtime.py
+      - name: Build reusable components and small Skill
+        run: |
+          python -B scripts/runtime_components.py dist/media-editor-${{ matrix.target }}.zip --output dist/components
+          python -B build_package.py --output dist/media-editor.zip
+      - name: Verify first-use setup and shared models
+        run: python -B scripts/verify_components.py --base dist/media-editor.zip --parts dist/components --report dist/components-${{ matrix.target }}.verify.json
       - uses: actions/upload-artifact@v4
         with:
           name: offline-${{ matrix.target }}
@@ -47,5 +53,8 @@ jobs:
             dist/media-editor-${{ matrix.target }}.zip
             dist/media-editor-${{ matrix.target }}.verify.json
             dist/media-editor-${{ matrix.target }}.build.json
+            dist/media-editor.zip
+            dist/components/*
+            dist/components-${{ matrix.target }}.verify.json
           compression-level: 0
           retention-days: 7

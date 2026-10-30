@@ -25,6 +25,7 @@ def digest(path):
 
 
 def invoke(args, env, timeout=300):
+    print('VERIFY:', Path(str(args[0])).name, ' '.join(str(a) for a in args[1:3]),flush=True)
     result=subprocess.run(list(map(str,args)),env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
                           text=True,encoding='utf-8',errors='replace',timeout=timeout)
     if result.returncode:
@@ -79,6 +80,12 @@ def verify(archive, report):
         language='zh' if sample.is_file() else 'en'
         if not sample.is_file():sample=target/'runtime/samples/jfk.wav'
         invoke([ffmpeg,'-v','error','-i',sample,'-c:a','aac',media],env)
+        for fmt in ('flv','mpegts'):
+            converted=area/('format.'+fmt)
+            invoke([ffmpeg,'-v','error','-i',sample,'-c:a','aac','-f',fmt,converted],env)
+            invoke([target/info['tools']['ffprobe'],'-v','error','-show_entries','format=duration',converted],env)
+        for fmt in ('mp4','matroska'):
+            invoke([ffmpeg,'-v','error','-i',media,'-c','copy','-f',fmt,area/('merge.'+fmt)],env)
         original_hash=digest(media)
         output=area/'转写 输出'
         command=[*installed_launch,'transcribe',media,'--language',language,
@@ -116,7 +123,8 @@ def verify(archive, report):
                 'transcribed_known_sample':True,'sample_language':language,'sample_text':text[:500],
                 'original_unchanged':True,'repeat_install':'unchanged','cache_reused':True,
                 'executable_mode_restored':restored_mode,'network_denied_during_asr':network_denied,
-                'png_decode_encode':True,
+                'png_decode_encode':True,'flv_ts_input':True,'mp4_mkv_remux':True,
+                'first_transcription_timing':json.loads(first.stdout).get('timing'),
                 'elapsed_seconds':round(time.perf_counter()-started,3),
                 'scope':'完整包安装与本地转写链路；公开英文短样本不证明真实中文整场准确率、说话人归属或文稿终审。'}
     report.parent.mkdir(parents=True,exist_ok=True)

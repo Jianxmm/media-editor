@@ -10,6 +10,19 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def runtime_root(root: Path | None = None) -> Path:
+    root=(root or ROOT).resolve()
+    if (root/'runtime/runtime.json').is_file():return root
+    pointer=root/'.runtime-path'
+    if pointer.exists():
+        if pointer.is_symlink():raise ValueError('运行环境指针不能是链接')
+        selected=Path(pointer.read_text(encoding='utf-8').strip())
+        if not selected.is_absolute() or selected.is_symlink():raise ValueError('运行环境位置无效')
+        if not (selected/'runtime/runtime.json').is_file():raise ValueError('共用转写环境不完整，请重新运行setup')
+        return selected.resolve()
+    return root
+
+
 def target_platform() -> str:
     machine = platform.machine().lower()
     if sys.platform == 'darwin':
@@ -20,7 +33,7 @@ def target_platform() -> str:
 
 
 def runtime_info(root: Path | None = None) -> dict | None:
-    root = (root or ROOT).resolve()
+    root = runtime_root(root)
     path = root / 'runtime/runtime.json'
     if not path.exists():
         return None
@@ -33,11 +46,17 @@ def runtime_info(root: Path | None = None) -> dict | None:
 
 
 def resource(relative: str, root: Path | None = None) -> Path:
-    root = (root or ROOT).resolve()
+    root = runtime_root(root)
     rel = PurePosixPath(relative)
     if rel.is_absolute() or '..' in rel.parts or '\\' in relative or not rel.parts or rel.parts[0] != 'runtime':
         raise ValueError('内置转写资源路径无效')
     path = root / rel
+    if not path.exists() and relative.startswith('runtime/models/') and (root/'.models-path').is_file():
+        pointer=root/'.models-path'
+        if pointer.is_symlink():raise ValueError('模型指针不能是链接')
+        model_root=Path(pointer.read_text(encoding='utf-8').strip())
+        if not model_root.is_absolute() or model_root.is_symlink():raise ValueError('模型位置无效')
+        root=model_root.resolve();path=root/rel
     if any((root / Path(*rel.parts[:i])).is_symlink() for i in range(1, len(rel.parts) + 1)):
         raise ValueError('内置转写资源不能经过符号链接')
     if not path.is_file():
@@ -61,7 +80,7 @@ def bundled_model(root: Path | None = None) -> Path | None:
 
 
 def prepare_environment(root: Path | None = None) -> None:
-    root = (root or ROOT).resolve()
+    root = runtime_root(root)
     info = runtime_info(root)
     if not info:
         return
