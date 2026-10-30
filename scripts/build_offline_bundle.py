@@ -162,7 +162,7 @@ def build_whisper(source, target, jobs):
         args += ['-DCMAKE_EXE_LINKER_FLAGS=/MANIFEST:EMBED /MANIFESTINPUT:' + str(manifest)]
     if target.endswith('x64'):
         args += ['-DGGML_AVX=OFF', '-DGGML_AVX2=OFF', '-DGGML_AVX512=OFF',
-                 '-DGGML_FMA=OFF', '-DGGML_F16C=OFF']
+                 '-DGGML_FMA=OFF', '-DGGML_F16C=OFF', '-DGGML_BMI2=OFF', '-DGGML_SSE42=OFF']
     run(args)
     run(['cmake', '--build', build, '--config', 'Release', '--parallel', str(jobs), '--target', 'whisper-cli'])
     executable = build / 'bin' / ('Release/whisper-cli.exe' if target == 'windows-x64' else 'whisper-cli')

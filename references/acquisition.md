@@ -19,7 +19,7 @@ python "<SKILL_ROOT>/scripts/media_intake.py" fetch "<单条链接>" --kind vide
 # 播客等仅需要音频时，使用 --kind audio
 
 # 使用已有的 whisper-cli 和已有本地模型，不自动下载模型或上传音频
-python "<SKILL_ROOT>/scripts/media_intake.py" doctor --task local-asr
+python "<SKILL_ROOT>/scripts/media_intake.py" doctor --task local-asr --model "<已有模型文件>"
 python "<SKILL_ROOT>/scripts/media_intake.py" transcribe "<本地音视频>" --model "<已有模型文件>" --language zh --output-dir "<新的转写目录>"
 ```
 

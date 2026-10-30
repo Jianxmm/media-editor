@@ -34,6 +34,13 @@ class BundledRuntimeTests(unittest.TestCase):
         self.assertIsNone(runtime.runtime_info(self.root))
         self.assertIsNone(runtime.bundled_model(self.root))
 
+    def test_programs_without_model_are_not_reported_as_transcription_ready(self):
+        import media_intake
+        model=Path(self.temp.name)/'model.bin';model.write_bytes(b'fixture')
+        with patch('shutil.which',return_value='/existing/tool'):
+            self.assertFalse(media_intake.check_task('local-asr')['ready'])
+            self.assertTrue(media_intake.check_task('local-asr',model)['ready'])
+
     def test_full_bundle_missing_engine_never_borrows_global_engine(self):
         self.config()
         with patch('shutil.which',return_value='/developer/bin/whisper-cli'):

@@ -72,13 +72,14 @@ def clean_url(value: str) -> str:
     return urlunsplit((parsed.scheme,parsed.netloc,parsed.path,query,''))
 
 
-def check_task(task: str) -> dict:
+def check_task(task: str, model: Path | None=None) -> dict:
     needs={'text':[], 'subtitle':['python3'], 'url':['yt-dlp','ffprobe'],
            'local-asr':['ffmpeg','ffprobe','whisper-cli']}[task]
     found={name:bool(bundled_tool(name) or shutil.which(name)) for name in needs}
-    model=bundled_model() if task=='local-asr' else None
+    model=(model.expanduser().resolve() if model else bundled_model()) if task=='local-asr' else None
+    model_present=bool(model and model.is_file())
     info=runtime_info()
-    return {'task':task,'tools':found,'ready':all(found.values()) and (bool(model) if task=='local-asr' else True),
+    return {'task':task,'tools':found,'ready':all(found.values()) and (model_present if task=='local-asr' else True),
             'bundled_runtime':bool(info),'model':str(model) if model else None,
             'note':'完整包已检查包内工具和模型；基础包需另提供模型。实际转写仍须验证，不代表原声听辨或说话人核验。'}
 
@@ -363,6 +364,7 @@ def main() -> int:
     parser=argparse.ArgumentParser(description='单条素材获取和可续用的本地转写')
     sub=parser.add_subparsers(dest='command',required=True)
     check=sub.add_parser('doctor');check.add_argument('--task',choices=['text','subtitle','url','local-asr'],required=True)
+    check.add_argument('--model',type=Path,help='基础包检查已有模型；完整包可省略')
     get=sub.add_parser('fetch');get.add_argument('url');get.add_argument('--output-dir',type=Path,required=True)
     get.add_argument('--kind',choices=['video','audio','subtitle'],default='video')
     get.add_argument('--subtitle-language',default='zh',help='字幕实际语言代码；先选人工字幕，再尝试自动字幕')
@@ -372,7 +374,7 @@ def main() -> int:
     asr.add_argument('--profile',type=Path,help='本机个人资料；只将已确认专名用于本地识别提示')
     args=parser.parse_args()
     try:
-        if args.command=='doctor':result=check_task(args.task)
+        if args.command=='doctor':result=check_task(args.task,args.model)
         elif args.command=='fetch':result=fetch(args.url,args.output_dir,args.kind,args.subtitle_language)
         else:result=transcribe(args.media,args.output_dir,args.model,args.language,args.chunk_seconds,args.threads,profile=args.profile)
         print(json.dumps(result,ensure_ascii=False,indent=2));return 0
