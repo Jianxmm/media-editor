@@ -50,6 +50,7 @@ def verify(base, parts, report):
             with zipfile.ZipFile(base) as z:z.extractall(area/'other-agent')
             other=area/'other-agent/media-editor'
             assert json.loads(launch(other,'doctor','--task','local-asr').stdout)['ready']
+            launch(other,'setup')
             assert counts.get('/media-editor-models.zip',0)==1
             assert sum(v for k,v in counts.items() if k.startswith('/media-editor-runtime-'))==1
             inference=json.loads(launch(target,'transcribe',runtime/'runtime/samples/jfk.wav','--language','en','--threads','2','--output-dir',area/'transcript').stdout)

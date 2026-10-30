@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "$0")" && pwd)"
+if [ "${1:-}" = setup ]; then exec /bin/bash "$ROOT/setup.command"; fi
 PYTHON="$ROOT/runtime/python/bin/python3.12"
 RUNTIME="$ROOT"
 if [ ! -f "$PYTHON" ] && [ -f "$ROOT/.runtime-path" ]; then
