@@ -31,7 +31,7 @@ metadata:
 
 ## 按需材料与恢复
 
-- 缺少完整转写时读[素材获取与转写](references/acquisition.md)；有`runtime/runtime.json`时优先使用[完整包内置转写](references/offline.md)，不默认借用Agent的云转写。已有完整转写先用，分段接缝和空白候选按真实原声核对。
+- 缺少完整转写时读[素材获取与转写](references/acquisition.md)；本地转写优先使用[启动器与按需环境](references/offline.md)：小Skill首次运行会自动准备共用程序与模型，完整包使用内置环境；不要求用户另找Python或模型，不默认借用Agent的云转写。已有完整转写先用，分段接缝和空白候选按真实原声核对。
 - 有本场词库或参考偏好时读[共用资料](references/personalization.md)，保存快照；私人资料不随技能分发，本场事实优先。
 - 安装、升级、中断恢复或计时读[维护说明](references/maintenance.md)。工具耗时不冒充全程或真人用时，未测阶段保持未知。
 

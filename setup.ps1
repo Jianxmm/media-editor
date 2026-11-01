@@ -18,8 +18,13 @@ try {
     if (-not (Test-Path -LiteralPath (Join-Path $source 'runtime/python/python.exe'))) {
         $archive = Join-Path $work 'runtime.zip'
         Invoke-WebRequest -UseBasicParsing -Uri "$base/$($catalog.runtime.name)" -OutFile $archive
-        if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLower() -ne $catalog.runtime.sha256) {throw '程序组件校验失败'}
-        Expand-Archive -LiteralPath $archive -DestinationPath (Join-Path $work 'program')
+        $stream = [IO.File]::OpenRead($archive)
+        $hasher = [Security.Cryptography.SHA256]::Create()
+        try {$digest = [BitConverter]::ToString($hasher.ComputeHash($stream)).Replace('-', '').ToLowerInvariant()}
+        finally {$stream.Dispose(); $hasher.Dispose()}
+        if ($digest -ne $catalog.runtime.sha256) {throw '程序组件校验失败'}
+        $null = [Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem')
+        [IO.Compression.ZipFile]::ExtractToDirectory($archive, (Join-Path $work 'program'))
         $source = Join-Path $work 'program/media-editor'
     }
     $python = Join-Path $source 'runtime/python/python.exe'

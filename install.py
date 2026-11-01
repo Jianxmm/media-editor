@@ -161,9 +161,9 @@ if __name__=='__main__':
         result=restore(args.restore,args.target) if args.restore else install(ROOT,args.target,upgrade=args.upgrade,backup_dir=args.backup_dir)
         print(json.dumps(result,ensure_ascii=False,indent=2))
         installed=Path(result.get('target',ROOT))
-        if (installed/'runtime/runtime.json').is_file():
+        if (installed/'runtime/runtime.json').is_file() or (installed/'.runtime-path').is_file():
             print('文稿整理及内置转写文件已安装；请运行包内启动器 doctor --task local-asr 检查本机可用性。')
         else:
-            print('文稿整理 Skill 已安装。本包未包含转写程序与语音模型；只有音视频时需另配环境，或下载对应系统的转写完整包。')
+            print('文稿整理规则已安装。已有文字稿可直接整理；首次本地转写请调用包内启动器，它会自动准备程序与共用模型，无需另找转写器。')
     except (OSError,ValueError,TypeError) as exc:
         print('INSTALL=BLOCKED: '+str(exc));raise SystemExit(1)
