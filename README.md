@@ -34,15 +34,17 @@
 
 <br>
 
-<p><a href="https://github.com/Jianxmm/media-editor/releases/latest"><img src="assets/download-button.svg" alt="下载转写完整包：选择 Windows 或 Mac" width="224" height="52"></a></p>
+<p><a href="https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip"><img src="assets/download-button.svg" alt="下载文稿整理小Skill包" width="224" height="52"></a></p>
+
+推荐下载[小Skill包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip)。首次使用本地转写时自动下载共用程序与模型；已有文字稿可直接整理。优先让Agent从解压后的本地目录安装。
+
+离线携带时，下载对应系统的完整包。不同客户端上传大ZIP的限制不属于已验证范围。
 
 | 电脑 | 下载含转写程序和模型的完整包 |
 | :--- | :--- |
 | Windows 64位Intel/AMD | [Windows完整包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor-windows-x64.zip) |
 | 苹果芯片Mac（M系列） | [苹果芯片Mac完整包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor-macos-arm64.zip) |
 | Intel Mac | [Intel Mac完整包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor-macos-x64.zip) |
-
-推荐下载[小Skill包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip)。小Skill首次使用本地转写时自动下载共用程序与模型；完整包较大，适合离线携带。优先让Agent从解压后的本地目录安装；不同客户端上传大ZIP的限制不属于已验证范围。
 
 1. 点击上面的按钮下载，解压得到 `media-editor` 文件夹，保留其中的全部文件。
 2. 在所用工具的 Skill 管理中导入整个文件夹；如果工具要求放入指定目录，按它的说明放到技能文件夹。

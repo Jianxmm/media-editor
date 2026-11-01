@@ -17,7 +17,7 @@
 
 ## AI 无法安装时，再手动安装
 
-[下载最新版并选择对应系统的转写完整包](https://github.com/Jianxmm/media-editor/releases/latest)。`media-editor.zip`是基础包，不带转写环境。
+[下载小Skill包](https://github.com/Jianxmm/media-editor/releases/latest/download/media-editor.zip)。需要本地转写时，启动器会自动准备程序和模型；离线电脑改用[对应系统的完整包](https://github.com/Jianxmm/media-editor/releases/latest)。
 
 1. 下载后解压，找到 `media-editor` 文件夹，保留里面的全部文件，包括隐藏文件夹。
 2. 打开所用 AI 工具的 Skill 管理，按它提供的本地导入方式添加完整文件夹。如果工具要求复制到技能目录，就把整个文件夹放到指定位置。
@@ -86,7 +86,7 @@
 
 <br>
 
-先开启新对话，再让助手检查“文稿整理”的安装位置，确认能读取入口和包内的直播规则。缺少转写工具时，让助手说明需要补什么再配置。
+先开启新对话，再让助手检查“文稿整理”的安装位置，确认能读取入口和包内的直播规则。需要转写时调用包内启动器；若环境准备失败，让助手报告具体失败阶段，再按提示重试。
 
 </details>
 
